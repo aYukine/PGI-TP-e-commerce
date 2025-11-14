@@ -1,6 +1,6 @@
 
 <template>
-  <div class="promotion" :style="{ background: bgColor, borderColor: borderColor }">
+  <div class="promotion" :style="{ background: bgColor }">
     <div class="promo-content">
       <div class="promo-title">{{ title }}</div>
       <div class="promo-desc">{{ desc }}</div>
@@ -23,7 +23,6 @@ defineProps<{
   desc: string
   imgSrc?: string
   bgColor?: string
-  borderColor?: string
   imgXOffset?: string | number
 }>()
 </script>
