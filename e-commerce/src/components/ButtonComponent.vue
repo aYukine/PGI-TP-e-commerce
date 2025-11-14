@@ -1,5 +1,5 @@
 <template>
-  <button class="custom-btn" :style="{ background: bgColor, color: textColor }">
+  <button class="custom-btn" :style="{ background: bgColor, color: textColor }" @click="$emit('click')">
     <slot />
   </button>
 </template>
@@ -10,6 +10,8 @@ defineProps<{
   textColor?: string
   url?: string
 }>()
+
+defineEmits(['click'])
 </script>
 
 <style scoped>
