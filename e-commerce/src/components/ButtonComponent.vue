@@ -8,6 +8,7 @@
 defineProps<{
   bgColor?: string
   textColor?: string
+  url?: string
 }>()
 </script>
 

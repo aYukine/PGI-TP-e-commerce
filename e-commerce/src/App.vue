@@ -15,10 +15,38 @@ const categories = [
   { title: 'Cake & Milk', items: 54, imgSrc: '/imgs/cate/9.png', bgColor: "#F2FCE4"},
   { title: 'Orange', items: 63, imgSrc: '/imgs/cate/10.png', bgColor: "#FFF3FF"},
 ]
+
+const promotions = [
+  {
+    title: "Everyday Fresh and Clean with Our Products",
+    imgSrc: "/imgs/promo/1.png",
+    bgColor: "#f0e8d5",
+    borderColor: "#f8fafb",
+    buttonColor: "#27ae60",
+    url: "/promotions/1",
+  },
+  {
+    title: "Make your Breakfast Healthy and Easy",
+    imgSrc: "/imgs/promo/2.png",
+    bgColor: "#fff",
+    borderColor: "#f8fafb",
+    buttonColor: "#27ae60",
+    url: "/promotions/2",
+  },
+  {
+    title: "The best Organic Products Online",
+    imgSrc: "/imgs/promo/3.png",
+    bgColor: "#e7eAf3",
+    borderColor: "#eaf6f2",
+    buttonColor: "#f7b32b",
+    url: "/promotions/3",
+  }
+]
 </script>
 
 <template>
   <div id="app-root">
+
     <!-- Category Row -->
     <div class="category-row">
       <CategoryComponent
@@ -32,41 +60,19 @@ const categories = [
     <!-- Promotions Row -->
     <div class="promotions-row">
       <PromotionComponent
-        title="Everyday Fresh & Clean with Our Products"
-        desc=""
-        imgSrc="/imgs/promo/1.png"
-        bgColor="#f0e8d5"
-        borderColor="#f8fafb"
+        v-for="(promo, i) in promotions"
+        :key="promo.title + i"
+        :title="promo.title"
+        :imgSrc="promo.imgSrc"
+        :bgColor="promo.bgColor"
+        :borderColor="promo.borderColor"
       >
         <template #button>
-          <ButtonComponent bgColor="#27ae60" textColor="#fff">Shop Now →</ButtonComponent>
-        </template>
-      </PromotionComponent>
-
-      <PromotionComponent
-        title="Make your Breakfast Healthy and Easy"
-        desc=""
-        imgSrc="/imgs/promo/2.png"
-        bgColor="#fff"
-        borderColor="#f8fafb"
-      >
-        <template #button>
-          <ButtonComponent bgColor="#27ae60" textColor="#fff">Shop Now →</ButtonComponent>
-        </template>
-      </PromotionComponent>
-
-      <PromotionComponent
-        title="The best Organic Products Online"
-        desc=""
-        imgSrc="/imgs/promo/3.png"
-        bgColor="#e7eAf3"
-        borderColor="#eaf6f2"
-      >
-        <template #button>
-          <ButtonComponent bgColor="#f7b32b" textColor="#fff">Shop Now →</ButtonComponent>
+          <ButtonComponent :bgColor="promo.buttonColor" textColor="#fff" url:"promo.url">Shop Now →</ButtonComponent>
         </template>
       </PromotionComponent>
     </div>
+
   </div>
 </template>
 
