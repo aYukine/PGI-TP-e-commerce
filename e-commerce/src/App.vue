@@ -4,12 +4,18 @@ import CategoryComponent from './components/CategoryComponent.vue'
 import PromotionComponent from './components/PromotionComponent.vue'
 import ButtonComponent from './components/ButtonComponent.vue'
 import {useProductStore} from './stores/productStore'
+import {mapState} from 'pinia'
 
 export default {
   components: {
     CategoryComponent,
     PromotionComponent,
     ButtonComponent
+  },
+  data() {
+    return {
+      currentGroupName: 'Milks & Diaries'
+    }
   },
   setup() {
     const productStore = useProductStore()
@@ -19,39 +25,37 @@ export default {
     shopNow(promotion) {
       alert("Let's shop: " + promotion.title);
     },
-    fetchCategories() {
-      axios.get('http://localhost:3000/api/categories')
-        .then(response => {
-          this.categories = response.data.map(cat => ({
-            title: cat.name,
-            items: cat.productCount,
-            imgSrc: `http://localhost:3000/${cat.image.replace(/\\/g, '/')}`,
-            bgColor: cat.color
-          }));
-        })
-        .catch(error => {
-          console.error('Error fetching categories:', error);
-        });
-    },
-    fetchPromotions() {
-      axios.get('http://localhost:3000/api/promotions')
-        .then(response => {
-          this.promotions = response.data.map(promo => ({
-            title: promo.title,
-            imgSrc: `http://localhost:3000/${promo.image.replace(/\\/g, '/')}`,
-            bgColor: promo.color,
-            buttonColor: promo.buttonColor,
-            url: promo.url
-          }));
-        })
-        .catch(error => {
-          console.error('Error fetching promotions:', error);
-        });
-    }
   },
   mounted() {
-    this.fetchCategories();
-    this.fetchPromotions();
+    this.productStore.fetchCategories();
+    this.productStore.fetchPromotions();
+    this.productStore.fetchGroups();
+    this.productStore.fetchProducts();
+  },
+  computed: {
+    ...mapState(useProductStore, {
+      popularProducts: 'getPopularProducts',
+      
+      categories(store) {
+        const result = store.getCategoriesByGroup(this.currentGroupName)
+        console.log('Categories for group', this.currentGroupName, ':', result)
+        return result
+      },
+      
+      products(store) {
+        const result = store.getProductsByGroup(this.currentGroupName)
+        console.log('Products for group', this.currentGroupName, ':', result)
+        return result
+      }
+    })
+  },
+  watch: {
+    popularProducts(newVal) {
+      console.log('Popular Products:', newVal)
+    },
+    currentGroupName(newVal) {
+      console.log('Group changed to:', newVal)
+    }
   }
 }
 </script>
@@ -62,7 +66,7 @@ export default {
     <!-- Category Row -->
     <div class="category-row">
       <CategoryComponent
-        v-for="(cate, i) in categories"
+        v-for="(cate, i) in productStore.categories"
         :key="cate.title + i"
         v-bind="cate"
         :bgColor="cate.bgColor"
@@ -72,7 +76,7 @@ export default {
     <!-- Promotions Row -->
     <div class="promotions-row">
       <PromotionComponent
-        v-for="(promo, i) in promotions"
+        v-for="(promo, i) in productStore.promotions"
         :key="promo.title + i"
         :title="promo.title"
         desc=""
