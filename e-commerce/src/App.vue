@@ -3,6 +3,7 @@ import axios from 'axios'
 import CategoryComponent from './components/CategoryComponent.vue'
 import PromotionComponent from './components/PromotionComponent.vue'
 import ButtonComponent from './components/ButtonComponent.vue'
+import {useProductStore} from './stores/productStore'
 
 export default {
   components: {
@@ -10,11 +11,9 @@ export default {
     PromotionComponent,
     ButtonComponent
   },
-  data() {
-    return {
-      categories: [],
-      promotions: []
-    }
+  setup() {
+    const productStore = useProductStore()
+    return { productStore }
   },
   methods: {
     shopNow(promotion) {
