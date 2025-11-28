@@ -3,6 +3,8 @@ import axios from 'axios'
 import CategoryComponent from './components/CategoryComponent.vue'
 import PromotionComponent from './components/PromotionComponent.vue'
 import ButtonComponent from './components/ButtonComponent.vue'
+import MenuComponent from './components/MenuComponent.vue'
+import ProductComponent from './components/ProductComponent.vue'
 import {useProductStore} from './stores/productStore'
 import {mapState} from 'pinia'
 
@@ -10,11 +12,17 @@ export default {
   components: {
     CategoryComponent,
     PromotionComponent,
-    ButtonComponent
+    ButtonComponent,
+    MenuComponent,
+    ProductComponent
   },
   data() {
     return {
-      currentGroupName: 'Milks & Diaries'
+      currentGroupName: '',
+      categoryMenuItems: ['All', 'Milks & Diaries', 'Coffee & Teas', 'Pet Foods', 'Meats', 'Vegetables', 'Fruits'],
+      activeCategoryMenu: 'All',
+      productMenuItems: ['All', 'Milks & Diaries', 'Coffee & Teas', 'Pet Foods', 'Meats', 'Vegetables', 'Fruits'],
+      activeProductMenu: 'All'
     }
   },
   setup() {
@@ -25,6 +33,18 @@ export default {
     shopNow(promotion) {
       alert("Let's shop: " + promotion.title);
     },
+    selectCategoryMenu(item) {
+      this.activeCategoryMenu = item
+      this.currentGroupName = item === 'All' ? '' : item
+    },
+    selectProductMenu(item) {
+      this.activeProductMenu = item
+      this.currentGroupName = item === 'All' ? '' : item
+    },
+    addToCart(product) {
+      console.log('Add to cart:', product)
+      // TODO: Implement add to cart functionality
+    }
   },
   mounted() {
     this.productStore.fetchCategories();
@@ -63,15 +83,25 @@ export default {
 <template>
   <div id="app-root">
 
-    <!-- Category Row -->
-    <div class="category-row">
-      <CategoryComponent
-        v-for="(cate, i) in productStore.categories"
-        :key="cate.title + i"
-        v-bind="cate"
-        :bgColor="cate.bgColor"
-      />
-    </div>
+    <!-- Featured Categories Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Featured Categories</h2>
+        <MenuComponent 
+          :menuItems="categoryMenuItems" 
+          :activeItem="activeCategoryMenu"
+          @select="selectCategoryMenu"
+        />
+      </div>
+      <div class="category-row">
+        <CategoryComponent
+          v-for="(cate, i) in productStore.categories"
+          :key="cate.title + i"
+          v-bind="cate"
+          :bgColor="cate.bgColor"
+        />
+      </div>
+    </section>
 
     <!-- Promotions Row -->
     <div class="promotions-row">
@@ -89,30 +119,101 @@ export default {
       </PromotionComponent>
     </div>
 
+    <!-- Popular Products Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Popular Products</h2>
+        <MenuComponent 
+          :menuItems="productMenuItems" 
+          :activeItem="activeProductMenu"
+          @select="selectProductMenu"
+        />
+      </div>
+      <div class="products-grid">
+        <ProductComponent
+          v-for="product in popularProducts"
+          :key="product.id"
+          :id="product.id"
+          :name="product.name"
+          :imgSrc="product.imgSrc"
+          :price="product.price"
+          :rating="product.rating"
+          :promotionAsPercent="product.promotionAsPercent"
+          :countSold="product.countSold"
+          @add-to-cart="addToCart"
+        />
+      </div>
+    </section>
+
   </div>
 </template>
 
 <style scoped>
+#app-root {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #253D4E;
+  margin: 0;
+}
 
 .category-row {
   display: flex;
   flex-direction: row;
   overflow-x: auto;
+  gap: 16px;
   padding: 0 16px 24px 16px;
-  margin-bottom: 24px;
 }
+
 .promotions-row {
   display: flex;
   flex-direction: row;
   justify-content: center;
   gap: 18px;
   padding: 0 16px;
+  margin-bottom: 48px;
 }
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 0 16px;
+}
+
 @media (max-width: 900px) {
   .promotions-row {
     flex-direction: column;
     gap: 18px;
     align-items: center;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
   }
 }
 </style>

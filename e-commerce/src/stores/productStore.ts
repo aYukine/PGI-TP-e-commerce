@@ -97,7 +97,41 @@ export const useProductStore = defineStore('product', {
       }
     },
     async fetchProducts() {
-
+      try {
+        const response = await axios.get('http://localhost:3000/api/products')
+        this.products = response.data.map((prod: any) => {
+          // Parse image - backend stores as JSON array string like ["uploads\\product\\..."]
+          let imagePath = prod.image
+          try {
+            const parsedImages = JSON.parse(prod.image)
+            if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+              imagePath = parsedImages[0] // Get first image
+            }
+          } catch (e) {
+            // If not JSON, use as is
+            imagePath = prod.image
+          }
+          
+          // Fix backslashes and double slashes
+          imagePath = imagePath.replace(/\\/g, '/').replace(/\/\//g, '/')
+          
+          return {
+            id: prod.id,
+            name: prod.name,
+            categoryId: prod.categoryId,
+            countSold: prod.countSold,
+            rating: prod.rating,
+            price: prod.price,
+            imgSrc: `http://localhost:3000/${imagePath}`,
+            size: prod.size,
+            promotionAsPercent: prod.promotionAsPercentage,
+            instock: prod.instock
+          }
+        })
+        console.log('✅ Fetched products:', this.products)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
     }
   },
 })
