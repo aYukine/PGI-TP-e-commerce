@@ -47,11 +47,11 @@ export default {
 .search-box {
   display: flex;
   align-items: center;
-  border: 1px solid #d4e9d7;
+  border: 2px solid #D4E9D7;
   border-radius: 6px;
   padding: 4px 8px;
   background: #fff;
-  width: 100%;
+  width: 1000px;
   max-width: 500px;
   box-sizing: border-box;
 }

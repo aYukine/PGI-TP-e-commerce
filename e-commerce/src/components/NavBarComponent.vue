@@ -118,11 +118,10 @@ export default {
   align-items: center;
   padding: 8px 32px;
   gap: 8px;
-  background: #f6fff7;
   border-top: 1px solid #d4e9d7;
 }
 .browse-btn {
-  background: #3a4d39;
+  background: #3BB77E;
   color: #fff;
   border: none;
   border-radius: 4px;
