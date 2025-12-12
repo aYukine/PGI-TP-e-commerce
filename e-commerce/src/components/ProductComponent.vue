@@ -1,5 +1,9 @@
 <template>
-  <div class="product-card">
+  <div
+    class="product-card"
+    @click="$emit('click')"
+    style="cursor:pointer"
+  >
     <!-- Label badges -->
     <div class="badges">
       <span v-if="badge" class="badge" :class="badgeType">
@@ -31,7 +35,7 @@
           <span class="current-price">${{ discountedPrice }}</span>
           <span v-if="promotionAsPercent && promotionAsPercent > 0" class="original-price">${{ price }}</span>
         </div>
-        <button class="add-btn" @click="$emit('add-to-cart', { id, name, price })">
+        <button class="add-btn" @click.stop="$emit('add-to-cart', { id, name, price })">
           <span>Add</span>
           <span class="plus">+</span>
         </button>

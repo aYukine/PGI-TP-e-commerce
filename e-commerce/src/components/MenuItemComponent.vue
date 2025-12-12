@@ -1,7 +1,22 @@
 <template>
-  <div class="menu-item" @mouseenter="hover = true" @mouseleave="hover = false">
-    <span>{{ label }}</span>
-    <span v-if="hasDropdown" class="arrow">&#9662;</span>
+  <div
+    class="menu-item"
+    @mouseenter="hover = true"
+    @mouseleave="hover = false"
+  >
+    <router-link
+      v-if="to"
+      :to="to"
+      class="menu-link"
+      @click.native="hover = false"
+    >
+      <span>{{ label }}</span>
+      <span v-if="hasDropdown" class="arrow">&#9662;</span>
+    </router-link>
+    <template v-else>
+      <span>{{ label }}</span>
+      <span v-if="hasDropdown" class="arrow">&#9662;</span>
+    </template>
     <div v-if="hasDropdown && hover" class="dropdown">
       <slot></slot>
     </div>
@@ -13,7 +28,8 @@ export default {
   name: "MenuItemComponent",
   props: {
     label: { type: String, required: true },
-    hasDropdown: { type: Boolean, default: false }
+    hasDropdown: { type: Boolean, default: false },
+    to: { type: [String, Object], default: null }
   },
   data() {
     return { hover: false };
@@ -31,6 +47,14 @@ export default {
   display: flex;
   align-items: center;
   height: 40px;
+}
+.menu-link {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 .menu-item:hover {
   background: #f6fff7;

@@ -7,6 +7,7 @@ import MenuComponent from '../components/MenuComponent.vue'
 import ProductComponent from '../components/ProductComponent.vue'
 import {useProductStore} from '../stores/productStore'
 import {mapState} from 'pinia'
+import { useRouter } from 'vue-router'
 
 // Add imports for new components
 import NavBarComponent from '../components/NavBarComponent.vue'
@@ -33,7 +34,8 @@ export default {
   },
   setup() {
     const productStore = useProductStore()
-    return { productStore }
+    const router = useRouter()
+    return { productStore, router }
   },
   methods: {
     shopNow(promotion) {
@@ -50,6 +52,9 @@ export default {
     addToCart(product) {
       console.log('Add to cart:', product)
       // TODO: Implement add to cart functionality
+    },
+    goToProduct(product) {
+      this.$router.push({ name: 'product', params: { productId: product.id } })
     }
   },
   mounted() {
@@ -152,7 +157,9 @@ export default {
           :rating="product.rating"
           :promotionAsPercent="product.promotionAsPercent"
           :countSold="product.countSold"
+          @click="goToProduct(product)"
           @add-to-cart="addToCart"
+          style="cursor:pointer"
         />
       </div>
     </section>
