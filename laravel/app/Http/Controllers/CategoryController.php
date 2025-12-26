@@ -3,26 +3,32 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
     public function getCategories() {
-        return ["message" => "Getting list of categories"];
+        return Category::all();
     }
 
-    public function createCategory() {
-        return ["message" => "Creating a new category"];
+    public function createCategory(Request $request) {
+        $category = Category::create($request->all());
+        return $category;
     }
 
     public function getCategory($categoryId) {
-        return ["message" => "Getting 1 category base on given categoryId"];
+        return Category::findOrFail($categoryId);
     }
 
-    public function updateCategory($categoryId) {
-        return ["message" => "Updating 1 category base on given categoryId"];
+    public function updateCategory(Request $request, $categoryId) {
+        $category = Category::findOrFail($categoryId);
+        $category->update($request->all());
+        return $category;
     }
 
     public function deleteCategory($categoryId) {
-        return ["message" => "Deleting 1 category base on given categoryId"];
+        $category = Category::findOrFail($categoryId);
+        $category->delete();
+        return response()->json(['message' => 'Category deleted']);
     }
 }
