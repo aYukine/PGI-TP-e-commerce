@@ -7,7 +7,6 @@ import { ApiKeyGuard } from 'src/common/guards/api-key.guard';
 
 @UseGuards(ApiKeyGuard)
 @Controller('receipts')
-@Controller('receipts')
 export class ReceiptsController {
   constructor(private readonly receiptsService: ReceiptsService) {}
 
