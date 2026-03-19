@@ -5,12 +5,12 @@ export class Receipt {
     @PrimaryGeneratedColumn()
     receiptId: string;
 
-    @Column({type: "datetime"})
+    @Column({type: "timestamp"})
     issuedAt: Date;
 
     @Column()
     name: string;
 
-    @Column()
+    @Column({ type: 'numeric', precision: 10, scale: 2 })
     price: number;
 }
