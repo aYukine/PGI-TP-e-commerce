@@ -1,9 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
+	constructor(
+		@Inject('ORDERS_SERVICE') private client: ClientProxy,
+		private readonly notifications: NotificationsService,
+	) {}
+
 	createOrder(orderDto: CreateOrderDto) {
+		this.client.emit('order_created', { 
+			order: orderDto, 
+			createdAt: new Date().toISOString() 
+		});
+
+		this.notifications.notify('order_created', {
+			order: orderDto,
+		});
+
 		return { status: 'Order accepted', order: orderDto };
 	}
 }
