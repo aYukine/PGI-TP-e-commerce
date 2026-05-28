@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { apolloClient } from '@/apollo/client'
 import { GET_TODOS, ADD_TODO, TOGGLE_TODO, DELETE_TODO, TODOS_SUB } from '@/graphql/todos'
 
@@ -15,13 +15,16 @@ export const useTodoStore = defineStore('todo', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  const activeTodos = computed(() => todos.value.filter((t) => !t.is_done))
+  const doneTodos = computed(() => todos.value.filter((t) => t.is_done))
+
   async function fetchTodos() {
     loading.value = true
     error.value = null
     try {
       const { data } = await apolloClient.query<{ todos: Todo[] }>({
         query: GET_TODOS,
-        fetchPolicy: 'network-only', // keep it simple for students
+        fetchPolicy: 'network-only', 
       })
       todos.value = data.todos
     } catch (e: any) {
@@ -38,29 +41,64 @@ export const useTodoStore = defineStore('todo', () => {
     await apolloClient.mutate({
       mutation: ADD_TODO,
       variables: { title: clean },
+      update: (cache, { data }) => {
+        const newTodo = data?.insert_todos_one
+        if (!newTodo) return
+        
+        try {
+          const existing = cache.readQuery<{ todos: Todo[] }>({ query: GET_TODOS })
+          if (existing) {
+            const updatedTodos = [newTodo, ...existing.todos]
+            cache.writeQuery({ query: GET_TODOS, data: { todos: updatedTodos } })
+            // Keep Pinia state in sync with cache
+            todos.value = updatedTodos
+          }
+        } catch (e) {
+          // GET_TODOS might not be in cache yet
+        }
+      }
     })
-
-    // simplest approach for class:
-    await fetchTodos()
   }
 
   async function toggleTodo(todo: Todo) {
     await apolloClient.mutate({
       mutation: TOGGLE_TODO,
       variables: { id: todo.id, done: !todo.is_done },
+      update: (cache, { data }) => {
+        const updatedTodo = data?.update_todos_by_pk
+        if (!updatedTodo) return
+        
+        try {
+          const existing = cache.readQuery<{ todos: Todo[] }>({ query: GET_TODOS })
+          if (existing) {
+            const updatedTodos = existing.todos.map(t => 
+              t.id === updatedTodo.id ? { ...t, is_done: updatedTodo.is_done } : t
+            )
+            cache.writeQuery({ query: GET_TODOS, data: { todos: updatedTodos } })
+            todos.value = updatedTodos
+          }
+        } catch (e) {}
+      }
     })
-    await fetchTodos()
   }
 
   async function deleteTodo(id: string) {
     await apolloClient.mutate({
       mutation: DELETE_TODO,
       variables: { id },
+      update: (cache) => {
+        try {
+          const existing = cache.readQuery<{ todos: Todo[] }>({ query: GET_TODOS })
+          if (existing) {
+            const updatedTodos = existing.todos.filter(t => t.id !== id)
+            cache.writeQuery({ query: GET_TODOS, data: { todos: updatedTodos } })
+            todos.value = updatedTodos
+          }
+        } catch (e) {}
+      }
     })
-    await fetchTodos()
   }
 
-  // Optional: realtime updates (subscription)
   function startRealtime() {
     const obs = apolloClient.subscribe<{ todos: Todo[] }>({
       query: TODOS_SUB,
@@ -81,6 +119,8 @@ export const useTodoStore = defineStore('todo', () => {
 
   return {
     todos,
+    activeTodos,
+    doneTodos,
     loading,
     error,
     fetchTodos,

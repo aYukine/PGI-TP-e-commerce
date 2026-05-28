@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useTodoStore } from '@/stores/todo.store'
 
 const todoStore = useTodoStore()
 const title = ref('')
+const currentFilter = ref<'all' | 'active' | 'done'>('all')
 let stopRealtime: null | (() => void) = null
+
+const displayedTodos = computed(() => {
+  if (currentFilter.value === 'active') return todoStore.activeTodos
+  if (currentFilter.value === 'done') return todoStore.doneTodos
+  return todoStore.todos
+})
 
 onMounted(async () => {
   await todoStore.fetchTodos()
@@ -57,10 +64,32 @@ function onAdd() {
         </button>
       </form>
 
+      <!-- Filter Tabs -->
+      <div class="flex justify-center gap-4 mb-6 border-b border-slate-200 pb-4">
+        <button 
+          @click="currentFilter = 'all'" 
+          :class="['px-4 py-2 font-medium text-sm rounded-lg transition-colors', currentFilter === 'all' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50']"
+        >
+          All ({{ todoStore.todos.length }})
+        </button>
+        <button 
+          @click="currentFilter = 'active'" 
+          :class="['px-4 py-2 font-medium text-sm rounded-lg transition-colors', currentFilter === 'active' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50']"
+        >
+          Active ({{ todoStore.activeTodos.length }})
+        </button>
+        <button 
+          @click="currentFilter = 'done'" 
+          :class="['px-4 py-2 font-medium text-sm rounded-lg transition-colors', currentFilter === 'done' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50']"
+        >
+          Done ({{ todoStore.doneTodos.length }})
+        </button>
+      </div>
+
       <main>
-        <ul v-if="todoStore.todos.length > 0" class="space-y-3">
+        <ul v-if="displayedTodos.length > 0" class="space-y-3">
           <li 
-            v-for="todo in todoStore.todos" 
+            v-for="todo in displayedTodos" 
             :key="todo.id" 
             class="flex items-center justify-between p-4 bg-slate-50 border-l-4 rounded-r-lg shadow-sm transition duration-150 hover:bg-slate-100"
             :class="todo.is_done ? 'border-emerald-500' : 'border-slate-300'"
