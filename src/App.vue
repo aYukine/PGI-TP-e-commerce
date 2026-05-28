@@ -1,11 +1,28 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useTodoStore } from '@/stores/todo.store'
+
+const todoStore = useTodoStore()
+
+onMounted(async () => {
+  await todoStore.fetchTodos()
+})
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-</template>
+  <div style="padding: 20px; font-family: sans-serif; text-align: center;">
+    <h2>Database Connection Check</h2>
+    
+    <div v-if="todoStore.loading" style="color: orange; font-weight: bold;">
+      Connecting to Hasura...
+    </div>
 
-<style scoped></style>
+    <div v-else-if="todoStore.error" style="color: red; font-weight: bold;">
+      ❌ Connection Failed: {{ todoStore.error }}
+    </div>
+
+    <div v-else style="color: green; font-weight: bold;">
+      ✅ Connected! Loaded {{ todoStore.todos.length }} rows from Neon.
+    </div>
+  </div>
+</template>
