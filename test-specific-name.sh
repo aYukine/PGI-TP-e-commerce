@@ -1,0 +1,1 @@
+npx playwright test -g "login with valid credentials"
